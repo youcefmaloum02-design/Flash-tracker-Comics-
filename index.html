@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<meta name="theme-color" content="#d71920">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flash Tracker">
+
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" href="./icon.png">
+<link rel="apple-touch-icon" href="./icon.png">
+
+<title>Flash Tracker</title>
+
+<style>
+:root{
+  --red:#d71920;
+  --yellow:#ffd21c;
+  --orange:#ff9d00;
+  --bg:#080a10;
+  --card:#11151f;
+  --card2:#181d29;
+  --text:#fff;
+  --muted:#9ca3af;
+  --border:rgba(255,255,255,.09);
+  --green:#35d07f;
+}
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 50% -10%,#5c1015 0,#18090c 28%,var(--bg) 65%);
+  min-height:100vh;
+}
+
+button{
+  font:inherit;
+}
+
+.app-header{
+  position:sticky;
+  top:0;
+  z-index:100;
+  padding:calc(14px + env(safe-area-inset-top)) 16px 15px;
+  background:rgba(8,10,16,.88);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);
+}
+
+.header-inner{
+  max-width:950px;
+  margin:auto;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.logo{
+  width:48px;
+  height:48px;
+  border-radius:14px;
+  overflow:hidden;
+  flex:none;
+  background:#d71920;
+  box-shadow:0 7px 25px rgba(255,160,0,.28);
+}
+
+.logo img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.brand h1{
+  margin:0;
+  font-size:23px;
+  line-height:1;
+}
+
+.brand p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.global-box{
+  margin-top:14px;
+}
+
+.global-line{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:13px;
+  margin-bottom:7px;
+}
+
+.global-number{
+  font-weight:800;
+}
+
+.global-percent{
+  color:var(--yellow);
+  font-weight:800;
+}
+
+.progress{
+  height:9px;
+  background:#292e38;
+  border-radius:99px;
+  overflow:hidden;
+}
+
+.progress-fill{
+  height:100%;
+  width:0;
+  background:linear-gradient(90deg,var(--red),var(--orange),var(--yellow));
+  border-radius:99px;
+  transition:width .25s ease;
+}
+
+main{
+  width:min(950px,100%);
+  margin:auto;
+  padding:18px 12px 50px;
+}
+
+.toolbar{
+  display:flex;
+  gap:8px;
+  margin-bottom:14px;
+}
+
+.search{
+  flex:1;
+  min-width:0;
+  background:#11151f;
+  color:white;
+  border:1px solid var(--border);
+  border-radius:11px;
+  padding:10px 12px;
+  outline:none;
+}
+
+.search:focus{
+  border-color:var(--red);
+}
+
+.toolbar button{
+  border:1px solid var(--border);
+  color:white;
+  background:#141923;
+  padding:9px 12px;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+/* PARTIES */
+
+.era{
+  margin-bottom:16px;
+  border:1px solid var(--border);
+  border-radius:20px;
+  overflow:hidden;
+  background:linear-gradient(145deg,#121722,#0d1017);
+  box-shadow:0 10px 35px rgba(0,0,0,.2);
+}
+
+.era-header{
+  width:100%;
+  border:0;
+  color:white;
+  background:linear-gradient(135deg,#8e1016,var(--red));
+  padding:17px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  text-align:left;
+  cursor:pointer;
+}
+
+.era.completed .era-header{
+  background:linear-gradient(135deg,#167a49,#20a963);
+}
+
+.era-left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+}
+
+.chevron{
+  font-size:18px;
+  transition:transform .2s;
+}
+
+.era.open .chevron{
+  transform:rotate(90deg);
+}
+
+.era-name{
+  font-size:17px;
+  font-weight:900;
+}
+
+.era-progress{
+  font-size:12px;
+  font-weight:800;
+  white-space:nowrap;
+  background:rgba(0,0,0,.2);
+  padding:6px 9px;
+  border-radius:99px;
+}
+
+.era-content{
+  display:none;
+  padding:10px;
+}
+
+.era.open .era-content{
+  display:block;
+}
+
+/* SERIES */
+
+.series{
+  border:1px solid var(--border);
+  border-radius:15px;
+  overflow:hidden;
+  margin:8px 0;
+  background:var(--card);
+}
+
+.series-header{
+  width:100%;
+  border:0;
+  color:white;
+  background:var(--card2);
+  padding:13px 14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  cursor:pointer;
+  text-align:left;
+}
+
+.series-left{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+}
+
+.series-chevron{
+  font-size:15px;
+  transition:transform .2s;
+}
+
+.series.open .series-chevron{
+  transform:rotate(90deg);
+}
+
+.series-name{
+  font-size:14px;
+  font-weight:850;
+}
+
+.series-progress{
+  font-size:11px;
+  color:var(--muted);
+  white-space:nowrap;
+  font-weight:700;
+}
+
+.series.completed{
+  border-color:rgba(53,208,127,.35);
+}
+
+.series.completed .series-header{
+  background:rgba(53,208,127,.08);
+}
+
+.series.completed .series-progress{
+  color:var(--green);
+}
+
+/* COMICS */
+
+.comics{
+  display:none;
+  padding:3px 0;
+}
+
+.series.open .comics{
+  display:block;
+}
+
+.comic{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-height:48px;
+  padding:9px 13px;
+  border-top:1px solid rgba(255,255,255,.055);
+  cursor:pointer;
+}
+
+.comic input{
+  width:20px;
+  height:20px;
+  flex:none;
+  accent-color:var(--red);
+  cursor:pointer;
+}
+
+.comic-title{
+  font-size:13px;
+  line-height:1.35;
+}
+
+.comic input:checked + .comic-title{
+  color:#737985;
+  text-decoration:line-through;
+}
+
+@media(min-width:700px){
+  main{
+    padding:25px 18px 70px;
+  }
+
+  .era-header{
+    padding:19px 20px;
+  }
+
+  .era-content{
+    padding:12px;
+  }
+
+  .comic:hover{
+    background:rgba(255,255,255,.035);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+
+    <div class="brand">
+
+      <div class="logo">
+        <img src="./icon.png" alt="Flash Tracker">
+      </div>
+
+      <div>
+        <h1>Flash Tracker</h1>
+        <p>Reading order</p>
+      </div>
+
+    </div>
+
+    <div class="global-box">
+
+      <div class="global-line">
+        <span class="global-number" id="globalText">0 / 0</span>
+        <span class="global-percent" id="globalPercent">0%</span>
+      </div>
+
+      <div class="progress">
+        <div class="progress-fill" id="globalFill"></div>
+      </div>
+
+    </div>
+
+  </div>
+</header>
+
+<main>
+
+  <div class="toolbar">
+
+    <input
+      class="search"
+      id="search"
+      type="search"
+      placeholder="Rechercher un comic..."
+      autocomplete="off"
+    >
+
+    <button id="openAll">Tout ouvrir</button>
+
+  </div>
+
+  <div id="app"></div>
+
+</main>
+
+<script>
+
+const source = [
+
+{
+title:"GOLDEN AGE — JAY GARRICK",
+items:[
+"Flash Comics #1 → #104",
+"All-Flash Quarterly #1 → #32",
+"All-Star Comics #3 → #57",
+"Comic Cavalcade #1 → #29"
+]
+},
+
+{
+title:"SILVER AGE — BARRY ALLEN",
+items:[
+"Showcase #4",
+"Showcase #8",
+"Showcase #13",
+"Showcase #14",
+"The Flash #105 → #122",
+"The Flash #123 — Flash of Two Worlds",
+"The Flash #124 → #129",
+"The Flash #130 → #136",
+"The Flash #137 — Vengeance of the Immortal Villain!",
+"Justice League of America #21 — Crisis on Earth-One!",
+"Justice League of America #22 — Crisis on Earth-Two!",
+"The Flash #138 → #146",
+"The Flash #147 → #150",
+"The Flash #151 → #160"
+]
+},
+
+{
+title:"JUSTICE LEAGUE / JUSTICE SOCIETY",
+items:[
+"Justice League of America #29–30 — Crisis Between Earth-One and Earth-Two",
+"Justice League of America #37–38 — Crisis on Earth-A",
+"Justice League of America #46–47 — Crisis in the Underworlds",
+"Justice League of America #55–56 — The Bridge Between Earths",
+"Justice League of America #64–65",
+"Justice League of America #73–74",
+"Justice League of America #82–83",
+"Justice League of America #91–92"
+]
+},
+
+{
+title:"BRONZE AGE — BARRY ALLEN",
+items:[
+"The Flash #161 → #199",
+"The Flash #200 → #249",
+"The Flash #250 → #269",
+"The Flash #270 → #284 — The Death of Iris West",
+"Adventure Comics #459 → #466",
+"The Flash #285 → #300",
+"The Flash #301 → #322"
+]
+},
+
+{
+title:"THE TRIAL OF THE FLASH",
+items:[
+"The Flash #323 → #327",
+"The Flash #329 → #336",
+"The Flash #337 → #339",
+"The Flash #340 → #350 — The Trial of the Flash"
+]
+},
+
+{
+title:"CRISIS ERA",
+items:[
+"Crisis on Infinite Earths #1 → #7",
+"The Flash #350",
+"Crisis on Infinite Earths #8 → #11",
+"Crisis on Infinite Earths #12"
+]
+},
+
+{
+title:"WALLY WEST — BEGINNING",
+items:[
+"The Flash #1 → #4 (1987)",
+"The Flash #5 → #14",
+"The Flash #15 → #24",
+"The Flash #25 → #35",
+"The Flash #36 → #47",
+"The Flash #48 → #61"
+]
+},
+
+{
+title:"MARK WAID — WALLY WEST",
+items:[
+"The Flash #62 — Born to Run",
+"The Flash #63 → #68",
+"The Flash Annual #4–5",
+"The Flash #69 → #79",
+"The Flash Annual #6",
+"Green Lantern #30–31",
+"The Flash #80 → #91",
+"The Flash #91–92",
+"The Flash #92 → #94 — Zero Hour tie-ins",
+"Zero Hour: Crisis in Time #1 → #4",
+"The Flash #95 → #105",
+"The Flash Annual #8"
+]
+},
+
+{
+title:"IMPULSE / BART ALLEN",
+items:[
+"Impulse #1 → #9",
+"The Flash #106 → #118",
+"Impulse #10–11",
+"The Flash #119 → #129",
+"The Flash #130 → #141 — Grant Morrison & Mark Millar",
+"The Flash #142 → #150"
+]
+},
+
+{
+title:"MAJOR WALLY WEST STORIES",
+items:[
+"The Flash #151 → #159",
+"The Flash #160 → #169",
+"The Flash #170 → #174",
+"Our Worlds at War #1",
+"The Flash #175 → #188",
+"The Flash #188 → #200",
+"The Flash #201 → #211",
+"The Flash #212 → #225"
+]
+},
+
+{
+title:"IDENTITY CRISIS / INFINITE CRISIS",
+items:[
+"Identity Crisis #1 → #7",
+"The Flash #225 → #230",
+"Infinite Crisis #1 → #7",
+"The Flash #231 → #236"
+]
+},
+
+{
+title:"WALLY → BART → WALLY",
+items:[
+"The Flash: The Fastest Man Alive #1 → #13",
+"52 #1 → #52",
+"Justice League of America #1 → #12",
+"The Flash #231 → #247",
+"The Flash #238 → #247"
+]
+}
+
+];
+
+
+/* STOCKAGE */
+
+const STORAGE_KEY="flash-tracker-progress-v7";
+
+let completed={};
+
+try{
+  completed=JSON.parse(
+    localStorage.getItem(STORAGE_KEY)||"{}"
+  );
+}catch{
+  completed={};
+}
+
+
+/* PLAGES */
+
+function expandItem(item){
+
+  const range=item.match(
+    /^(.*?)(#)(\d+)\s*(?:→|-|–)\s*#(\d+)(.*)$/
+  );
+
+  if(range){
+
+    const prefix=range[1]+"#";
+    const start=Number(range[3]);
+    const end=Number(range[4]);
+    const suffix=range[5]||"";
+
+    const result=[];
+
+    for(let n=start;n<=end;n++){
+      result.push(`${prefix}${n}${suffix}`);
+    }
+
+    return result;
+  }
+
+  const shortRange=item.match(
+    /^(.*?#)(\d+)[–-](\d+)(.*)$/
+  );
+
+  if(shortRange){
+
+    const prefix=shortRange[1];
+    const start=Number(shortRange[2]);
+    const end=Number(shortRange[3]);
+    const suffix=shortRange[4]||"";
+
+    const result=[];
+
+    for(let n=start;n<=end;n++){
+      result.push(`${prefix}${n}${suffix}`);
+    }
+
+    return result;
+  }
+
+  return [item];
+}
+
+
+/* NOM SÉRIE */
+
+function getSeriesName(item){
+
+  const match=item.match(
+    /^(.*?)(?:\s+#\d+|:)/
+  );
+
+  if(match){
+    return match[1].trim();
+  }
+
+  return item.replace(/\s+#.*$/,"").trim();
+}
+
+
+/* HIÉRARCHIE */
+
+function buildHierarchy(){
+
+  return source.map(era=>{
+
+    const seriesMap=new Map();
+
+    era.items.forEach((item,sourceIndex)=>{
+
+      const comics=expandItem(item);
+      const seriesName=getSeriesName(item);
+
+      if(!seriesMap.has(seriesName)){
+        seriesMap.set(seriesName,{
+          name:seriesName,
+          comics:[]
+        });
+      }
+
+      comics.forEach((comic,comicIndex)=>{
+
+        seriesMap.get(seriesName).comics.push({
+          title:comic,
+          original:item,
+          sourceIndex,
+          comicIndex
+        });
+
+      });
+
+    });
+
+    return {
+      name:era.title,
+      series:[...seriesMap.values()]
+    };
+
+  });
+}
+
+
+/* ID STABLE */
+
+function hashString(text){
+
+  let hash=0;
+
+  for(let i=0;i<text.length;i++){
+    hash=((hash<<5)-hash)+text.charCodeAt(i);
+    hash|=0;
+  }
+
+  return Math.abs(hash).toString(36);
+}
+
+function comicId(
+  eraIndex,
+  seriesIndex,
+  comicIndex,
+  comic
+){
+
+  return "comic-"+hashString(
+    [
+      source[eraIndex].title,
+      comic.original,
+      comic.title,
+      comicIndex
+    ].join("|")
+  );
+}
+
+
+/* SAUVEGARDE */
+
+function save(){
+
+  try{
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(completed)
+    );
+  }catch(error){
+    console.warn("Sauvegarde impossible",error);
+  }
+}
+
+
+/* PROGRESSION */
+
+function getSeriesProgress(
+  series,
+  eraIndex,
+  seriesIndex
+){
+
+  const total=series.comics.length;
+  let done=0;
+
+  series.comics.forEach((comic,comicIndex)=>{
+
+    if(
+      completed[
+        comicId(
+          eraIndex,
+          seriesIndex,
+          comicIndex,
+          comic
+        )
+      ]===true
+    ){
+      done++;
+    }
+
+  });
+
+  return {done,total};
+}
+
+
+function getEraProgress(era,eraIndex){
+
+  let total=0;
+  let done=0;
+
+  era.series.forEach((series,seriesIndex)=>{
+
+    const p=getSeriesProgress(
+      series,
+      eraIndex,
+      seriesIndex
+    );
+
+    total+=p.total;
+    done+=p.done;
+
+  });
+
+  return {done,total};
+}
+
+
+/* RENDU */
+
+const app=document.getElementById("app");
+const hierarchy=buildHierarchy();
+
+function render(){
+
+  app.innerHTML="";
+
+  hierarchy.forEach((era,eraIndex)=>{
+
+    const eraElement=document.createElement("section");
+    eraElement.className="era";
+
+    const eraHeader=document.createElement("button");
+    eraHeader.className="era-header";
+
+    const eraLeft=document.createElement("div");
+    eraLeft.className="era-left";
+
+    const eraChevron=document.createElement("span");
+    eraChevron.className="chevron";
+    eraChevron.textContent="›";
+
+    const eraName=document.createElement("span");
+    eraName.className="era-name";
+    eraName.textContent=era.name;
+
+    eraLeft.append(
+      eraChevron,
+      eraName
+    );
+
+    const eraProgress=document.createElement("span");
+    eraProgress.className="era-progress";
+
+    eraHeader.append(
+      eraLeft,
+      eraProgress
+    );
+
+    eraElement.appendChild(eraHeader);
+
+    const eraContent=document.createElement("div");
+    eraContent.className="era-content";
+
+    eraHeader.onclick=()=>{
+      eraElement.classList.toggle("open");
+    };
+
+    era.series.forEach((series,seriesIndex)=>{
+
+      const seriesElement=document.createElement("div");
+      seriesElement.className="series";
+
+      const seriesHeader=document.createElement("button");
+      seriesHeader.className="series-header";
+
+      const seriesLeft=document.createElement("div");
+      seriesLeft.className="series-left";
+
+      const chevron=document.createElement("span");
+      chevron.className="series-chevron";
+      chevron.textContent="›";
+
+      const seriesName=document.createElement("span");
+      seriesName.className="series-name";
+      seriesName.textContent=series.name;
+
+      seriesLeft.append(
+        chevron,
+        seriesName
+      );
+
+      const seriesProgress=document.createElement("span");
+      seriesProgress.className="series-progress";
+
+      seriesHeader.append(
+        seriesLeft,
+        seriesProgress
+      );
+
+      const comics=document.createElement("div");
+      comics.className="comics";
+
+      seriesHeader.onclick=()=>{
+        seriesElement.classList.toggle("open");
+      };
+
+      series.comics.forEach((comic,comicIndex)=>{
+
+        const id=comicId(
+          eraIndex,
+          seriesIndex,
+          comicIndex,
+          comic
+        );
+
+        const label=document.createElement("label");
+        label.className="comic";
+
+        const checkbox=document.createElement("input");
+        checkbox.type="checkbox";
+        checkbox.checked=completed[id]===true;
+
+        const title=document.createElement("span");
+        title.className="comic-title";
+        title.textContent=comic.title;
+
+        checkbox.onchange=()=>{
+
+          if(checkbox.checked){
+            completed[id]=true;
+          }else{
+            delete completed[id];
+          }
+
+          save();
+
+          updateSeries(
+            seriesElement,
+            series,
+            eraIndex,
+            seriesIndex
+          );
+
+          updateEra(
+            eraElement,
+            era,
+            eraIndex
+          );
+
+          updateGlobal();
+
+        };
+
+        label.append(
+          checkbox,
+          title
+        );
+
+        comics.appendChild(label);
+
+      });
+
+      seriesElement.append(
+        seriesHeader,
+        comics
+      );
+
+      eraContent.appendChild(seriesElement);
+
+      updateSeries(
+        seriesElement,
+        series,
+        eraIndex,
+        seriesIndex
+      );
+
+    });
+
+    eraElement.appendChild(eraContent);
+    app.appendChild(eraElement);
+
+    updateEra(
+      eraElement,
+      era,
+      eraIndex
+    );
+
+  });
+
+  updateGlobal();
+}
+
+
+/* UPDATE SÉRIE */
+
+function updateSeries(
+  element,
+  series,
+  eraIndex,
+  seriesIndex
+){
+
+  const p=getSeriesProgress(
+    series,
+    eraIndex,
+    seriesIndex
+  );
+
+  const progress=element.querySelector(
+    ".series-progress"
+  );
+
+  progress.textContent=
+    `${p.done}/${p.total}`;
+
+  if(
+    p.total>0 &&
+    p.done===p.total
+  ){
+
+    element.classList.add("completed");
+    progress.textContent=`✓ ${p.done}/${p.total}`;
+
+  }else{
+
+    element.classList.remove("completed");
+
+  }
+}
+
+
+/* UPDATE PARTIE */
+
+function updateEra(
+  element,
+  era,
+  eraIndex
+){
+
+  const p=getEraProgress(
+    era,
+    eraIndex
+  );
+
+  const progress=element.querySelector(
+    ".era-progress"
+  );
+
+  progress.textContent=
+    `${p.done}/${p.total}`;
+
+  if(
+    p.total>0 &&
+    p.done===p.total
+  ){
+
+    progress.textContent=
+      `✓ ${p.done}/${p.total}`;
+
+    element.classList.add("completed");
+
+  }else{
+
+    element.classList.remove("completed");
+
+  }
+}
+
+
+/* GLOBAL */
+
+function updateGlobal(){
+
+  let total=0;
+  let done=0;
+
+  hierarchy.forEach((era,eraIndex)=>{
+
+    const p=getEraProgress(
+      era,
+      eraIndex
+    );
+
+    total+=p.total;
+    done+=p.done;
+
+  });
+
+  const percent=total===0
+    ?0
+    :Math.round(done/total*100);
+
+  document.getElementById(
+    "globalText"
+  ).textContent=
+    `${done} / ${total} comics lus`;
+
+  document.getElementById(
+    "globalPercent"
+  ).textContent=
+    `${percent}%`;
+
+  document.getElementById(
+    "globalFill"
+  ).style.width=
+    `${percent}%`;
+}
+
+
+/* TOUT OUVRIR */
+
+let allOpen=false;
+
+document.getElementById("openAll").onclick=()=>{
+
+  allOpen=!allOpen;
+
+  document.querySelectorAll(".era")
+    .forEach(era=>{
+      era.classList.toggle(
+        "open",
+        allOpen
+      );
+    });
+
+  document.querySelectorAll(".series")
+    .forEach(series=>{
+      series.classList.toggle(
+        "open",
+        allOpen
+      );
+    });
+
+  document.getElementById(
+    "openAll"
+  ).textContent=
+    allOpen
+      ?"Tout fermer"
+      :"Tout ouvrir";
+};
+
+
+/* RECHERCHE */
+
+document.getElementById("search")
+.addEventListener("input",function(){
+
+  const query=this.value
+    .trim()
+    .toLowerCase();
+
+  document.querySelectorAll(".series")
+    .forEach(series=>{
+
+      let found=false;
+
+      series.querySelectorAll(".comic")
+        .forEach(comic=>{
+
+          const match=
+            comic.textContent
+              .toLowerCase()
+              .includes(query);
+
+          comic.style.display=
+            match
+              ?"flex"
+              :"none";
+
+          if(match){
+            found=true;
+          }
+
+        });
+
+      if(query && found){
+        series.classList.add("open");
+      }
+
+      series.style.display=
+        query && !found
+          ?"none"
+          :"";
+
+    });
+
+  document.querySelectorAll(".era")
+    .forEach(era=>{
+
+      const visible=
+        [...era.querySelectorAll(".series")]
+          .some(
+            s=>s.style.display!=="none"
+          );
+
+      era.style.display=
+        query && !visible
+          ?"none"
+          :"";
+
+      if(query && visible){
+        era.classList.add("open");
+      }
+
+    });
+
+});
+
+
+/* LANCEMENT */
+
+render();
+
+
+/* SERVICE WORKER */
+
+if("serviceWorker" in navigator){
+
+  window.addEventListener("load",()=>{
+
+    navigator.serviceWorker
+      .register("./sw.js")
+      .catch(error=>{
+        console.error(
+          "Service Worker:",
+          error
+        );
+      });
+
+  });
+
+}
+
+</script>
+
+</body>
+</html>
